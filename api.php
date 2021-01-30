@@ -12,7 +12,7 @@ if (!isset($_GET['id'])) {
 }
 $id = $_GET['id'];
 
-$id_configs = json_decode(@file_get_contents('data/ids.json'), true);
+$id_configs = json_decode(@file_get_contents('ids.json'), true);
 $config = in_array($id, array_keys($id_configs)) ? $id_configs[$id] : ['separator' => ',', 'filepath' => "data/{$id}.csv"];
 
 switch(strtoupper($_SERVER['REQUEST_METHOD'])) {
