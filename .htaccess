@@ -1,0 +1,6 @@
+<Files "config.ini">
+  Require all denied
+</Files>
+<Files "ids.json">
+  Require all denied
+</Files>

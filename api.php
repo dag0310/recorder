@@ -1,14 +1,34 @@
 <?php
-if (! isset($_SERVER['CONTENT_TYPE']) || stripos($_SERVER['CONTENT_TYPE'], 'application/json') === false) {
-  throw new Exception('Content-Type must be application/json');
+if (!isset($_SERVER['CONTENT_TYPE']) || stripos($_SERVER['CONTENT_TYPE'], 'application/json') === FALSE) {
+  http_response_code(500);
+  die('Content-Type must be application/json.');
 }
+
+$ini_config = parse_ini_file('config.ini', FALSE);
+if ($ini_config === FALSE) {
+  http_response_code(500);
+  die('Config file not found.');
+}
+
+if (empty($_GET['api_token'])) {
+  http_response_code(403);
+  die('GET parameter "api_token" missing.');
+}
+
+if ($_GET['api_token'] !== $ini_config['api_token']) {
+  http_response_code(403);
+  die('Wrong API token.');
+}
+
 $body = json_decode(file_get_contents("php://input"), true);
 if (!is_array($body)) {
-  throw new Exception('Failed to decode JSON object');
+  http_response_code(500);
+  die('Failed to decode JSON object.');
 }
 
 if (!isset($_GET['id'])) {
-  throw new Exception('Not found');
+  http_response_code(404);
+  die('GET parameter "id" missing.');
 }
 $id = $_GET['id'];
 
@@ -24,7 +44,8 @@ case 'POST':
   exit;
 case 'DELETE':
   if (!isset($body['id']) || !isset($body['columnIdx']) || !is_int($body['columnIdx'])) {
-    throw new Exception('Not found');
+    http_response_code(404);
+    die('Body parameter(s) missing.');
   }
 
   $lines = explode("\n", @file_get_contents($config['filepath']));
@@ -43,5 +64,6 @@ case 'DELETE':
   http_response_code(200);
   exit;
 default:
-  throw new Exception('Invalid request method ' . $_SERVER['REQUEST_METHOD']);
+  http_response_code(400);
+  die('Invalid request method ' . $_SERVER['REQUEST_METHOD']);
 }
